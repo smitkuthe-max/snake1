@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101329">
+<title>Snake Game PRO 2.0</title>
+<style>
+:root{--bg:#0c1022;--panel:#171d38;--panel2:#202849;--text:#f4f7ff;--muted:#aab5d5;--accent:#42f5c5;--accent2:#9c72ff;--danger:#ff5c83;--gold:#ffd166;--line:#303b62;--shadow:0 18px 50px #0005}
+body.light{--bg:#eef2ff;--panel:#fff;--panel2:#e8edff;--text:#17203b;--muted:#64708e;--accent:#008f78;--accent2:#7046d8;--danger:#d92d62;--gold:#b77900;--line:#d7def2;--shadow:0 18px 50px #33447722}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 15% 0%,#5636a533,transparent 32%),radial-gradient(circle at 90% 15%,#20cba522,transparent 28%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;transition:background .25s,color .25s}
+button,select{font:inherit}button{cursor:pointer;border:0;border-radius:13px;padding:11px 16px;font-weight:800;color:#101329;background:var(--accent);transition:transform .16s,filter .16s}button:hover{transform:translateY(-2px);filter:brightness(1.08)}button:active{transform:scale(.97)}button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}button.purple{background:linear-gradient(120deg,var(--accent2),#cb79ff);color:white}button.gold{background:var(--gold);color:#29200b}button.danger{background:var(--danger);color:white}button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.app{max-width:1160px;margin:auto;padding:22px 18px 40px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:27px;box-shadow:0 8px 25px #42f5c544}.brand h1{font-size:clamp(19px,4vw,27px);margin:0;letter-spacing:-.8px}.brand small{display:block;color:var(--muted);font-weight:600;margin-top:2px}.top-actions{display:flex;gap:8px;align-items:center}.pill{background:var(--panel);border:1px solid var(--line);padding:9px 13px;border-radius:99px;font-weight:800;white-space:nowrap}.pill b{color:var(--gold)}
+.screen{display:none;animation:fade .3s ease}.screen.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{position:relative;overflow:hidden;text-align:center;padding:48px 20px 35px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,#1a2850dd,#39245add),var(--panel);box-shadow:var(--shadow)}
+.hero:before,.hero:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #ffffff18;border-radius:50%;animation:orbit 18s linear infinite}.hero:before{left:-80px;top:-120px}.hero:after{right:-80px;bottom:-160px;animation-direction:reverse}@keyframes orbit{to{transform:rotate(360deg)}}
+.hero .eyebrow{color:#9fffe7;font-size:12px;letter-spacing:3px;font-weight:900}.hero h2{font-size:clamp(38px,8vw,76px);line-height:1;margin:15px 0 10px;letter-spacing:-3px}.gradient{background:linear-gradient(90deg,#50ffd2,#a48bff,#ff9ac1);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{color:#d1d9f4;max-width:560px;margin:0 auto 23px}.hero-buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.snake-art{font-size:48px;letter-spacing:7px;margin:10px 0 18px;animation:bob 2.5s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-8px)}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.stat small{color:var(--muted);font-weight:700}.stat strong{display:block;font-size:25px;margin-top:5px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.section-title h3{margin:0;font-size:19px}.muted{color:var(--muted)}.mode-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.mode{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center;cursor:pointer;transition:.2s}.mode:hover,.mode.selected{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 25px #42f5c522}.mode span{font-size:27px;display:block;margin-bottom:7px}.mode b{font-size:13px}.mode small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.game-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:16px;align-items:start}.game-panel{padding:14px}.game-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.game-head h2{font-size:18px;margin:0}.game-stats{display:flex;gap:8px}.mini-stat{background:var(--panel2);border-radius:10px;padding:7px 10px;font-size:12px;color:var(--muted)}.mini-stat b{color:var(--text);font-size:16px;margin-left:4px}
+.canvas-wrap{position:relative;background:#090e20;border:2px solid #42f5c588;border-radius:18px;overflow:hidden;box-shadow:0 0 35px #42f5c51b}.canvas-wrap canvas{display:block;width:100%;height:auto;touch-action:none}.game-overlay{position:absolute;inset:0;display:grid;place-items:center;background:#080d20c9;text-align:center;padding:20px}.game-overlay.hidden{display:none}.overlay-card{max-width:300px}.overlay-card h2{font-size:28px;margin:0 0 8px;color:#7fffe0}.overlay-card p{color:#d0d9f4;line-height:1.5}.game-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.side-stack{display:grid;gap:12px}.side-stack h3{margin:0 0 10px}.power-list{display:grid;gap:8px}.power{display:flex;justify-content:space-between;background:var(--panel2);padding:9px 11px;border-radius:11px;font-size:13px}.progress{height:9px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:8px}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}
+.joystick{display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(2,48px);gap:6px;justify-content:center;margin:15px auto 2px}.joystick button{padding:0;border-radius:12px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:20px;touch-action:none}.joystick .up{grid-column:2}.joystick .left{grid-column:1;grid-row:2}.joystick .down{grid-column:2;grid-row:2}.joystick .right{grid-column:3;grid-row:2}
+.page-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.list{display:grid;gap:8px}.list-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--panel2);border-radius:12px}.list-row small{color:var(--muted)}.skin-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.skin{padding:13px 8px;text-align:center;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}.skin .preview{font-size:27px;margin-bottom:6px}.skin b{display:block;font-size:12px}.skin small{color:var(--muted);font-size:11px}.skin button{padding:7px 9px;font-size:11px;margin-top:8px;width:100%}.mission{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:12px;background:var(--panel2);border-radius:12px}.mission p{margin:3px 0 0;color:var(--muted);font-size:12px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button.active{background:var(--accent);color:#101329}.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--text);color:var(--bg);padding:12px 18px;border-radius:99px;font-weight:800;z-index:20;transition:.25s;box-shadow:var(--shadow);text-align:center;max-width:90vw}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:800px){.game-layout{grid-template-columns:1fr}.mode-grid{grid-template-columns:repeat(3,1fr)}.skin-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.app{padding:14px 12px 30px}.topbar{align-items:flex-start}.top-actions{flex-wrap:wrap;justify-content:flex-end}.top-actions .pill{font-size:12px;padding:8px}.hero{padding:36px 14px 28px}.hero h2{letter-spacing:-2px}.stats{grid-template-columns:repeat(2,1fr);gap:8px}.stat{padding:12px}.stat strong{font-size:21px}.page-grid{grid-template-columns:1fr}.mode-grid{grid-template-columns:repeat(2,1fr)}.skin-grid{grid-template-columns:repeat(2,1fr)}.game-head{align-items:flex-start;flex-direction:column}.game-stats{width:100%}.mini-stat{flex:1}.game-actions button{flex:1}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="logo">🐍</div><div><h1>Snake Game <span class="gradient">PRO 2.0</span></h1><small>Eat • Grow • Conquer</small></div></div>
+  <div class="top-actions"><div class="pill">🪙 <b id="coinTop">0</b></div><button class="secondary" id="themeBtn" aria-label="Toggle theme">☀️ Theme</button><button class="secondary" id="soundBtn">🔊 Sound</button></div>
+</header>
+
+<main>
+<section id="home" class="screen active">
+  <div class="hero">
+    <div class="eyebrow">THE ARCADE CLASSIC, REIMAGINED</div>
+    <div class="snake-art">🐍 ✨ 🍎</div>
+    <h2>READY TO<br><span class="gradient">SLITHER?</span></h2>
+    <p>Chase the snacks, collect shiny rewards, unlock awesome skins and beat your best score. How long can you survive?</p>
+    <div class="hero-buttons"><button id="playBtn">▶ PLAY NOW</button><button class="purple" id="missionsBtn">🎯 DAILY MISSIONS</button><button class="secondary" id="collectionBtn">🎨 SKIN COLLECTION</button></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><small>BEST SCORE</small><strong id="bestHome">0</strong></div>
+    <div class="stat"><small>TOTAL COINS</small><strong id="coinsHome">0 🪙</strong></div>
+    <div class="stat"><small>PLAYER LEVEL</small><strong id="levelHome">1</strong></div>
+    <div class="stat"><small>GAMES PLAYED</small><strong id="gamesHome">0</strong></div>
+  </div>
+  <div class="section-title"><h3>🎮 Choose your game mode</h3><span class="muted">5 ways to play</span></div>
+  <div class="mode-grid" id="modeGrid">
+    <div class="mode selected" data-mode="classic"><span>🍎</span><b>Classic</b><small>Old-school snake</small></div>
+    <div class="mode" data-mode="time"><span>⏱️</span><b>Time Rush</b><small>90 seconds</small></div>
+    <div class="mode" data-mode="survival"><span>💀</span><b>Survival</b><small>Walls are deadly</small></div>
+    <div class="mode" data-mode="maze"><span>🧩</span><b>Maze</b><small>Mind the blocks</small></div>
+    <div class="mode" data-mode="zen"><span>🧘</span><b>Zen</b><small>No wall collisions</small></div>
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <div class="section-title"><h3>🎮 <span id="modeName">Classic</span> mode</h3><button class="secondary" id="homeBtn">⌂ Main menu</button></div>
+  <div class="game-layout">
+    <div class="panel game-panel">
+      <div class="game-head"><h2>🐍 Your run</h2><div class="game-stats"><div class="mini-stat">SCORE <b id="score">0</b></div><div class="mini-stat">TIME <b id="time">0:00</b></div><div class="mini-stat">LEVEL <b id="level">1</b></div></div></div>
+      <div class="canvas-wrap">
+        <canvas id="board" width="480" height="480" aria-label="Snake game board"></canvas>
+        <div class="game-overlay" id="gameOverlay"><div class="overlay-card"><h2 id="overlayTitle">Ready?</h2><p id="overlayText">Press start, then use arrow keys, WASD or touch controls.</p><button id="overlayStart">▶ START GAME</button></div></div>
+      </div>
+      <div class="game-actions"><button id="pauseBtn" class="secondary">⏸ Pause</button><button id="restartBtn" class="purple">↻ Restart</button><button id="quitBtn" class="secondary">✕ Quit</button></div>
+      <div class="joystick" aria-label="Touch controls"><button class="up" data-dir="up">⬆</button><button class="left" data-dir="left">⬅</button><button class="down" data-dir="down">⬇</button><button class="right" data-dir="right">➡</button></div>
+      <p class="muted" style="text-align:center;font-size:12px;margin:8px 0 0">Keyboard: Arrow keys / WASD · Space: pause</p>
+    </div>
+    <aside class="side-stack">
+      <div class="panel"><h3>⚡ Power-ups</h3><div class="power-list"><div class="power"><span>🛡️ Shield</span><b id="shieldStatus">Not active</b></div><div class="power"><span>🐢 Slow time</span><b id="slowStatus">Not active</b></div><div class="power"><span>💎 Bonus food</span><b id="bonusStatus">Look for it!</b></div></div><p class="muted" style="font-size:12px;margin:10px 0 0">Gold food gives bonus coins. Blue food activates a temporary power.</p></div>
+      <div class="panel"><h3>📈 Level progress</h3><div><b id="xpLabel">0 / 100 XP</b></div><div class="progress"><i id="xpBar"></i></div><p class="muted" style="font-size:12px">Earn XP by collecting food and completing runs.</p></div>
+      <div class="panel"><h3>💡 Quick tips</h3><p class="muted" style="font-size:13px;line-height:1.65;margin:0">• Plan turns ahead; don't trap yourself.<br>• Gold fruit is worth extra coins.<br>• Blue orbs grant a temporary shield or slow motion.<br>• Complete daily missions for coin bonuses.</p></div>
+    </aside>
+  </div>
+</section>
+
+<section id="missions" class="screen">
+ <div class="section-title"><h3>🎯 Daily missions</h3><button class="secondary" data-go="home">← Back</button></div>
+ <div class="panel"><p class="muted">Missions refresh every day. Complete them in any game mode to earn coins.</p><div class="list" id="missionList" style="margin-top:14px"></div></div>
+</section>
+
+<section id="collection" class="screen">
+ <div class="section-title"><h3>🎨 Skin collection</h3><button class="secondary" data-go="home">← Back</button></div>
+ <div class="panel"><p class="muted">Unlock skins with coins. Your selected skin appears in the game.</p><div class="skin-grid" id="skinGrid" style="margin-top:15px"></div></div>
+</section>
+
+<section id="leaderboard" class="screen">
+ <div class="section-title"><h3>🏆 Leaderboard & history</h3><button class="secondary" data-go="home">← Back</button></div>
+ <div class="page-grid"><div class="panel"><h3>🏆 Local leaderboard</h3><p class="muted" style="font-size:12px">Top scores on this browser/device.</p><div class="list" id="leaderList"></div></div><div class="panel"><h3>🕹️ Recent games</h3><div class="list" id="historyList"></div></div></div>
+</section>
+</main>
+<div class="section-title" style="margin-top:20px"><h3>More arcade</h3><div class="tabs"><button class="secondary" data-go="leaderboard">🏆 Scores & history</button><button class="secondary" data-go="missions">🎯 Missions</button><button class="secondary" data-go="collection">🎨 Skins</button></div></div>
+<footer class="footer">Snake Game PRO 2.0 · Made for the love of arcade games · Progress saves automatically on this device.</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const canvas = $("board"), ctx = canvas.getContext("2d");
+const SIZE = 24, CELL = 20, W = SIZE * CELL;
+const SKINS = [
+ {name:"Classic",emoji:"🟢",color:"#42f5c5",price:0},
+ {name:"Fire",emoji:"🔥",color:"#ff704d",price:80},
+ {name:"Ice",emoji:"❄️",color:"#72d9ff",price:100},
+ {name:"Royal",emoji:"👑",color:"#b58aff",price:130},
+ {name:"Toxic",emoji:"☢️",color:"#a8f05b",price:150},
+ {name:"Candy",emoji:"🍬",color:"#ff83bd",price:170},
+ {name:"Ocean",emoji:"🌊",color:"#3f9dff",price:190},
+ {name:"Gold",emoji:"✨",color:"#ffd166",price:230},
+ {name:"Shadow",emoji:"🌑",color:"#a3a9c8",price:260},
+ {name:"Rainbow",emoji:"🌈",color:"#ff76df",price:300}
+];
+const MODES = {classic:"Classic",time:"Time Rush",survival:"Survival",maze:"Maze",zen:"Zen"};
+const fresh = () => ({coins:0,best:0,xp:0,level:1,games:0,unlocked:[0],skin:0,sound:true,theme:"dark",leader:[],history:[],missionsDate:"",missions:{},daily:{foods:0,games:0,score:0}});
+let data;
+try { data = {...fresh(), ...JSON.parse(localStorage.getItem("snakeProSave") || "{}")}; } catch { data=fresh(); }
+function save(){localStorage.setItem("snakeProSave",JSON.stringify(data));}
+let mode="classic", snake=[], dir={x:1,y:0}, nextDir={x:1,y:0}, food=null, obstacles=[];
+let score=0, elapsed=0, remaining=90, timer=null, running=false, paused=false, started=false;
+let shieldUntil=0, slowUntil=0, powerLabel="", soundOn=data.sound, audioCtx=null;
+let lastTick=0, tickDelay=135, raf=0, lastTime=0, gameId=0, toastTimer;
+const rand=(n)=>Math.floor(Math.random()*n);
+const same=(a,b)=>a.x===b.x&&a.y===b.y;
+function notify(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2200);}
+function beep(freq=500,duration=.09,type="sine"){if(!soundOn)return;try{audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.07,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration);}catch{}}
+function music(){if(!soundOn)return;try{audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();const notes=[261.6,329.6,392,329.6];let i=0;const play=()=>{if(!running||paused||!soundOn)return;beep(notes[i++%notes.length],.13,"triangle");musicTimer=setTimeout(play,520);};clearTimeout(musicTimer);play();}catch{}}
+let musicTimer;
+function setTheme(){document.body.classList.toggle("light",data.theme==="light");$("themeBtn").textContent=data.theme==="light"?"🌙 Dark":"☀️ Light";}
+function renderHeader(){ $("coinTop").textContent=data.coins; $("bestHome").textContent=data.best; $("coinsHome").textContent=data.coins+" 🪙"; $("levelHome").textContent=data.level; $("gamesHome").textContent=data.games; $("soundBtn").textContent=soundOn?"🔊 Sound":"🔇 Muted"; }
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===id));if(id==="missions")renderMissions();if(id==="collection")renderSkins();if(id==="leaderboard")renderRecords();}
+function levelUp(){const newLevel=Math.floor(data.xp/100)+1;if(newLevel>data.level){data.level=newLevel;data.coins+=25;notify("🎉 Level "+newLevel+" unlocked! +25 coins");beep(880,.2);} }
+function addXP(n){data.xp+=n;levelUp();renderProgress();save();renderHeader();}
+function renderProgress(){const current=data.xp%100;$("xpLabel").textContent=current+" / 100 XP · Level "+data.level;$("xpBar").style.width=current+"%";$("level").textContent=data.level;}
+function dailySetup(){const today=new Date().toISOString().slice(0,10);if(data.missionsDate!==today){data.missionsDate=today;data.missions={eat:{done:0,claimed:false},score:{done:0,claimed:false},games:{done:0,claimed:false}};data.daily={foods:0,games:0,score:0};save();}}
+const MISSION_DEFS=[{id:"eat",title:"Snack attack",desc:"Eat 10 pieces of food",goal:10,reward:40,field:"foods"},{id:"score",title:"Big appetite",desc:"Score 100 points in total",goal:100,reward:60,field:"score"},{id:"games",title:"Keep slithering",desc:"Play 3 games",goal:3,reward:50,field:"games"}];
+function updateMissions(){dailySetup();for(const m of MISSION_DEFS)data.missions[m.id].done=Math.min(m.goal,data.daily[m.field]||0);save();}
+function renderMissions(){updateMissions();$("missionList").innerHTML=MISSION_DEFS.map(m=>{const v=data.missions[m.id],pct=Math.min(100,v.done/m.goal*100);return `<div class="mission"><div><b>${m.title}</b><p>${m.desc} · ${v.done}/${m.goal}</p><div class="progress"><i style="width:${pct}%"></i></div></div><button class="${v.claimed?"secondary":"gold"}" data-claim="${m.id}" ${v.done<m.goal||v.claimed?"disabled":""}>${v.claimed?"Claimed":"🪙 "+m.reward}</button></div>`}).join("");$("missionList").querySelectorAll("[data-claim]").forEach(b=>b.onclick=()=>{const m=MISSION_DEFS.find(x=>x.id===b.dataset.claim);if(!m||data.missions[m.id].claimed||data.missions[m.id].done<m.goal)return;data.missions[m.id].claimed=true;data.coins+=m.reward;save();renderMissions();renderHeader();beep(900,.18);notify("Mission complete! +"+m.reward+" coins");});}
+function renderSkins(){$("skinGrid").innerHTML=SKINS.map((s,i)=>{const unlocked=data.unlocked.includes(i),selected=data.skin===i;return `<div class="skin"><div class="preview" style="color:${s.color}">${s.emoji}</div><b>${s.name}</b><small>${unlocked?"Unlocked":s.price+" coins"}</small><button class="${selected?"secondary":unlocked?"":"gold"}" data-skin="${i}" ${selected?"disabled":""}>${selected?"Equipped":unlocked?"Equip":"Unlock"}</button></div>`}).join("");$("skinGrid").querySelectorAll("[data-skin]").forEach(b=>b.onclick=()=>{const i=+b.dataset.skin,s=SKINS[i];if(data.unlocked.includes(i)){data.skin=i;notify(s.name+" skin equipped");}else if(data.coins>=s.price){data.coins-=s.price;data.unlocked.push(i);data.skin=i;notify("Unlocked "+s.name+" skin!");beep(850,.15);}else notify("Not enough coins yet!");save();renderSkins();renderHeader();});}
+function renderRecords(){const sorted=[...data.leader].sort((a,b)=>b.score-a.score).slice(0,10);$("leaderList").innerHTML=sorted.length?sorted.map((r,i)=>`<div class="list-row"><span>${["🥇","🥈","🥉"][i]||"#"+(i+1)} <b>${r.mode}</b></span><b>${r.score}</b></div>`).join(""):'<p class="muted">No scores yet. Play a round!</p>';$("historyList").innerHTML=data.history.length?[...data.history].reverse().slice(0,8).map(r=>`<div class="list-row"><span><b>${r.mode}</b><br><small>${r.date}</small></span><b>${r.score} pts</b></div>`).join(""):'<p class="muted">Your recent games will appear here.</p>';}
+function startNewGame(){clearInterval(timer);cancelAnimationFrame(raf);gameId++;score=0;elapsed=0;remaining=90;running=true;paused=false;started=true;snake=[{x:7,y:12},{x:6,y:12},{x:5,y:12}];dir={x:1,y:0};nextDir={x:1,y:0};obstacles=[];shieldUntil=0;slowUntil=0;powerLabel="";tickDelay=135;if(mode==="maze"){for(let y=3;y<21;y++){if(y===11||y===12)continue;obstacles.push({x:12,y});}}food=null;spawnFood();$("score").textContent="0";$("time").textContent="0:00";$("modeName").textContent=MODES[mode];$("gameOverlay").classList.add("hidden");$("pauseBtn").textContent="⏸ Pause";$("shieldStatus").textContent="Not active";$("slowStatus").textContent="Not active";$("bonusStatus").textContent="Look for it!";draw();lastTick=0;lastTime=performance.now();raf=requestAnimationFrame(loop);timer=setInterval(()=>{if(!running||paused)return;elapsed++;if(mode==="time"){remaining--;if(remaining<=0){endGame("Time's up!");return;}}$("time").textContent=mode==="time"?`0:${String(remaining).padStart(2,"0")}`:`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,"0")}`;},1000);music();}
+function spawnFood(){let p;do{p={x:rand(SIZE),y:rand(SIZE)};}while(snake.some(s=>same(s,p))||obstacles.some(o=>same(o,p)));const r=Math.random();food={...p,type:r<.13?"gold":r<.30?"power":"normal"};}
+function setDirection(d){if(!running||paused)return;if(d.x+dir.x===0&&d.y+dir.y===0)return;nextDir=d;}
+function loop(ts){if(!running||paused)return;const delay=performance.now()<slowUntil?tickDelay*1.55:tickDelay;if(ts-lastTick>=delay){lastTick=ts;step();}draw();raf=requestAnimationFrame(loop);}
+function step(){dir=nextDir;let head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(mode==="zen"){head.x=(head.x+SIZE)%SIZE;head.y=(head.y+SIZE)%SIZE;}else if(head.x<0||head.y<0||head.x>=SIZE||head.y>=SIZE){if(Date.now()<shieldUntil){shieldUntil=0;head={x:(head.x+SIZE)%SIZE,y:(head.y+SIZE)%SIZE};notify("Shield saved you!");}else{return endGame("You hit the wall!");}}
+if(obstacles.some(o=>same(o,head))){if(Date.now()<shieldUntil){shieldUntil=0;notify("Shield broke a barrier!");}else return endGame("Maze collision!");}
+const eating=same(head,food),body=eating?snake:snake.slice(0,-1);if(body.some(p=>same(p,head))){if(Date.now()<shieldUntil){shieldUntil=0;notify("Shield saved you!");}else return endGame("You ran into yourself!");}
+snake.unshift(head);
+if(eating){const points=food.type==="gold"?30:10;score+=points;$("score").textContent=score;data.daily.foods++;data.daily.score+=points;data.coins+=food.type==="gold"?8:2;addXP(food.type==="gold"?15:5);if(food.type==="gold"){notify("💎 Golden fruit! +30 points, +8 coins");beep(980,.15);}else{beep(620,.08);}
+if(food.type==="power"){if(Math.random()<.5){shieldUntil=Date.now()+7000;powerLabel="shield";$("shieldStatus").textContent="7 seconds";notify("🛡️ Shield activated!");}else{slowUntil=Date.now()+8000;powerLabel="slow";$("slowStatus").textContent="8 seconds";notify("🐢 Slow motion activated!");}}
+spawnFood();tickDelay=Math.max(65,135-Math.floor(score/50)*7);updateMissions();renderHeader();}else snake.pop();
+$("shieldStatus").textContent=Date.now()<shieldUntil?"Active":"Not active";$("slowStatus").textContent=Date.now()<slowUntil?"Active":"Not active";$("bonusStatus").textContent=food.type==="gold"?"Golden fruit!":"Look for it!";}
+function draw(){ctx.clearRect(0,0,W,W);ctx.fillStyle="#0a1024";ctx.fillRect(0,0,W,W);ctx.strokeStyle="#ffffff0b";ctx.lineWidth=1;for(let i=0;i<=SIZE;i++){ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,W);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(W,i*CELL);ctx.stroke();}
+obstacles.forEach(o=>{ctx.fillStyle="#7884a8";roundRect(o.x*CELL+2,o.y*CELL+2,CELL-4,CELL-4,5);ctx.fill();});
+if(food){ctx.save();ctx.shadowBlur=18;ctx.shadowColor=food.type==="gold"?"#ffd166":food.type==="power"?"#55aaff":"#ff587c";ctx.fillStyle=food.type==="gold"?"#ffd166":food.type==="power"?"#55aaff":"#ff587c";ctx.beginPath();ctx.arc(food.x*CELL+10,food.y*CELL+10,7,0,Math.PI*2);ctx.fill();ctx.restore();}
+const skin=SKINS[data.skin]||SKINS[0];snake.forEach((p,i)=>{ctx.save();ctx.fillStyle=i===0?"#ffffff":skin.color;ctx.shadowColor=skin.color;ctx.shadowBlur=i===0?14:5;roundRect(p.x*CELL+2,p.y*CELL+2,CELL-4,CELL-4,6);ctx.fill();if(i===0){ctx.fillStyle="#17213b";ctx.fillRect(p.x*CELL+6,p.y*CELL+6,3,3);ctx.fillRect(p.x*CELL+12,p.y*CELL+6,3,3);}ctx.restore();});}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
+function endGame(reason){if(!running)return;running=false;clearInterval(timer);cancelAnimationFrame(raf);clearTimeout(musicTimer);data.games++;data.daily.games++;data.best=Math.max(data.best,score);const reward=Math.max(2,Math.floor(score/10));data.coins+=reward;data.leader.push({score,mode:MODES[mode],date:new Date().toLocaleDateString()});data.leader.sort((a,b)=>b.score-a.score);data.leader=data.leader.slice(0,20);data.history.push({score,mode:MODES[mode],date:new Date().toLocaleString()});data.history=data.history.slice(-30);addXP(Math.max(5,Math.floor(score/5)));updateMissions();save();renderHeader();$("overlayTitle").textContent=reason.includes("Time")?"⏰ TIME UP!":"💥 GAME OVER";$("overlayText").textContent=`${reason} Final score: ${score}. You earned ${reward} coins!`; $("overlayStart").textContent="↻ PLAY AGAIN";$("gameOverlay").classList.remove("hidden");$("pauseBtn").textContent="⏸ Pause";beep(180,.3,"sawtooth");}
+function pauseGame(){if(!running)return;paused=!paused;if(paused){cancelAnimationFrame(raf);clearTimeout(musicTimer);$("overlayTitle").textContent="⏸ PAUSED";$("overlayText").textContent="Take a breather, Snake Master. Ready when you are."; $("overlayStart").textContent="▶ RESUME";$("gameOverlay").classList.remove("hidden");$("pauseBtn").textContent="▶ Resume";}else{$("gameOverlay").classList.add("hidden");$("pauseBtn").textContent="⏸ Pause";lastTime=performance.now();lastTick=0;raf=requestAnimationFrame(loop);music();}}
+function enterGame(){showScreen("game");startNewGame();}
+function goHome(){running=false;clearInterval(timer);cancelAnimationFrame(raf);clearTimeout(musicTimer);showScreen("home");renderHeader();}
+$("playBtn").onclick=enterGame;$("overlayStart").onclick=()=>{if(paused){pauseGame();}else startNewGame();};$("pauseBtn").onclick=pauseGame;$("restartBtn").onclick=startNewGame;$("quitBtn").onclick=goHome;$("homeBtn").onclick=goHome;
+$("missionsBtn").onclick=()=>showScreen("missions");$("collectionBtn").onclick=()=>showScreen("collection");
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>showScreen(b.dataset.go));
+document.querySelectorAll(".mode").forEach(el=>el.onclick=()=>{document.querySelectorAll(".mode").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");mode=el.dataset.mode;notify(MODES[mode]+" mode selected");});
+$("themeBtn").onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";setTheme();save();};
+$("soundBtn").onclick=()=>{soundOn=!soundOn;data.sound=soundOn;$("soundBtn").textContent=soundOn?"🔊 Sound":"🔇 Muted";save();if(soundOn&&running&&!paused)music();else clearTimeout(musicTimer);};
+const keyMap={ArrowUp:{x:0,y:-1},w:{x:0,y:-1},ArrowDown:{x:0,y:1},s:{x:0,y:1},ArrowLeft:{x:-1,y:0},a:{x:-1,y:0},ArrowRight:{x:1,y:0},d:{x:1,y:0}};
+document.addEventListener("keydown",e=>{if(keyMap[e.key]){e.preventDefault();setDirection(keyMap[e.key]);}if(e.code==="Space"&&$("game").classList.contains("active")){e.preventDefault();pauseGame();}});
+document.querySelectorAll(".joystick button").forEach(b=>{b.addEventListener("pointerdown",e=>{e.preventDefault();const map={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};setDirection(map[b.dataset.dir]);});});
+let touchStart=null;canvas.addEventListener("touchstart",e=>{const t=e.changedTouches[0];touchStart={x:t.clientX,y:t.clientY};},{passive:true});canvas.addEventListener("touchend",e=>{if(!touchStart)return;const t=e.changedTouches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;if(Math.max(Math.abs(dx),Math.abs(dy))>18){setDirection(Math.abs(dx)>Math.abs(dy)?{x:Math.sign(dx),y:0}:{x:0,y:Math.sign(dy)});}touchStart=null;},{passive:true});
+dailySetup();setTheme();renderHeader();renderProgress();draw();renderRecords();
+})();
+</script>
+</body>
+</html>
